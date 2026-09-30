@@ -127,7 +127,7 @@
 
             </div>
 
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary w-100 w-md-auto">
                 Enregistrer le rapport
             </button>
         </form>
