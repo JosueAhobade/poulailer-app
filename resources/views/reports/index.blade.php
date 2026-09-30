@@ -26,6 +26,8 @@
                     <th>Malades</th>
                     <th>Aliment</th>
                     <th>Eau</th>
+                    <th>Traitements</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -38,6 +40,50 @@
                         <td>{{ $report->sick_count }}</td>
                         <td>{{ $report->feed_quantity }} kg</td>
                         <td>{{ $report->water_quantity }} L</td>
+                        <td>
+                            @forelse($report->treatments as $treatment)
+
+                                <div class="mb-2">
+                                    <span class="badge bg-blue-lt">
+                                        {{ $treatment->name }}
+                                    </span>
+
+                                    @if($treatment->dosage)
+                                        <div class="text-secondary small">
+                                            {{ $treatment->dosage }}
+                                        </div>
+                                    @endif
+
+                                    @if($treatment->administration_method)
+                                        <div class="text-secondary small">
+                                            {{ $treatment->administration_method }}
+                                        </div>
+                                    @endif
+                                </div>
+
+                            @empty
+
+                                <span class="text-secondary">
+                                    Aucun
+                                </span>
+
+                            @endforelse
+                        </td>
+                        <td>
+                            @if($report->treatments->count() > 0)
+
+                                <span class="badge bg-green-lt me-2">
+                                    💊 {{ $report->treatments->count() }}
+                                </span>
+
+                            @endif
+                            <a
+                                href="{{ route('treatments.create', $report) }}"
+                                class="btn btn-sm btn-outline-primary"
+                            >
+                                + Traitement
+                            </a>
+                        </td>
                     </tr>
                 @empty
                     <tr>

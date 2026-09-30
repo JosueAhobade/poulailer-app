@@ -25,4 +25,9 @@ class DailyReport extends Model
         'temperature' => 'decimal:2',
         'birds_weight' => 'decimal:2',
     ];
+
+    public function treatments()
+    {
+        return $this->hasMany(Treatment::class);
+    }
 }
