@@ -125,6 +125,83 @@
                     >{{ old('observations') }}</textarea>
                 </div>
 
+
+                <div class="col-12 mt-3 mb-3">
+
+                    <h3 class="card-title">
+                        Consommation estimée
+                    </h3>
+
+                    <p class="text-secondary small">
+                        À renseigner après avoir vérifié les quantités restantes.
+                        Calcul : reste du matin + quantité servie - reste du soir.
+                    </p>
+
+                </div>
+
+                {{-- ALIMENT CONSOMMÉ --}}
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+                        🌽 Quantité d'aliment consommée
+                    </label>
+
+                    <div class="input-group">
+
+                        <input
+                            type="number"
+                            name="feed_consumed"
+                            class="form-control"
+                            min="0"
+                            step="0.01"
+                            inputmode="decimal"
+                            value="{{ old('feed_consumed') }}"
+                            placeholder="Ex : 46.50"
+                        >
+
+                        <span class="input-group-text">kg</span>
+
+                    </div>
+
+                    <small class="text-secondary">
+                        Laisser vide si non mesurée.
+                    </small>
+
+                </div>
+
+                {{-- EAU CONSOMMÉE --}}
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+                        💧 Quantité d'eau consommée
+                    </label>
+
+                    <div class="input-group">
+
+                        <input
+                            type="number"
+                            name="water_consumed"
+                            class="form-control"
+                            min="0"
+                            step="0.01"
+                            inputmode="decimal"
+                            value="{{ old('water_consumed') }}"
+                            placeholder="Ex : 86.00"
+                        >
+
+                        <span class="input-group-text">L</span>
+
+                    </div>
+
+                    <small class="text-secondary">
+                        Laisser vide si non mesurée.
+                    </small>
+
+                </div>
+
+
             </div>
 
             <button type="submit" class="btn btn-primary w-100 w-md-auto">

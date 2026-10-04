@@ -2,142 +2,195 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\DailyReport;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Journée de référence : heure locale du poulailler (Bénin)
+        // Filtre sécurisé : uniquement 7, 14 ou 30 jours
+        $period = filter_var(
+            $request->query('period'),
+            FILTER_VALIDATE_INT
+        );
+
+        $period = in_array($period, [7, 14, 30], true)
+            ? $period
+            : 14;
+
+        // Date locale du poulailler
         $today = CarbonImmutable::now('Africa/Porto-Novo')
             ->startOfDay();
 
         $todayDate = $today->toDateString();
 
-        // Rapport du jour
+        $start = $today->subDays($period - 1);
+        $startDate = $start->toDateString();
+
+        // -----------------------------------------
+        // INDICATEURS GÉNÉRAUX
+        // -----------------------------------------
+
         $todayReport = DailyReport::where(
             'report_date',
             $todayDate
         )->first();
 
-        // Dernier rapport disponible
-        $latestReport = DailyReport::orderByDesc('report_date')
-            ->first();
+        $latestReport = DailyReport::where(
+            'report_date',
+            '<=',
+            $todayDate
+        )
+        ->orderByDesc('report_date')
+        ->first();
 
-        // Mortalité cumulée dans les rapports enregistrés
-        $totalDeathsRecorded = DailyReport::sum('deaths_count');
+        $totalDeathsRecorded = DailyReport::where(
+            'report_date',
+            '<=',
+            $todayDate
+        )->sum('deaths_count');
 
-        // ------------------------------------------------
-        // MOYENNES SUR LES 7 DERNIERS JOURS
-        // ------------------------------------------------
+        // -----------------------------------------
+        // DONNÉES DE LA PÉRIODE
+        // -----------------------------------------
 
-        $reports7 = DailyReport::whereBetween('report_date', [
-            $today->subDays(6)->toDateString(),
-            $todayDate,
-        ])->get();
-
-        $feedRecorded = $reports7->filter(
-            fn ($report) => $report->feed_quantity !== null
-        );
-
-        $waterRecorded = $reports7->filter(
-            fn ($report) => $report->water_quantity !== null
-        );
-
-        $averageFeed = $feedRecorded->avg(
-            fn ($report) => (float) $report->feed_quantity
-        );
-
-        $averageWater = $waterRecorded->avg(
-            fn ($report) => (float) $report->water_quantity
-        );
-
-        $feedDays = $feedRecorded->count();
-        $waterDays = $waterRecorded->count();
-
-        // ------------------------------------------------
-        // GRAPHIQUES : 14 DERNIERS JOURS
-        // ------------------------------------------------
-
-        $start = $today->subDays(13);
-
-        $reports = DailyReport::whereBetween('report_date', [
-            $start->toDateString(),
-            $todayDate,
-        ])
+        $rangeReports = DailyReport::whereBetween(
+            'report_date',
+            [$startDate, $todayDate]
+        )
         ->orderBy('report_date')
-        ->get()
-        ->keyBy(fn ($report) => $report->report_date->format('Y-m-d'));
+        ->get();
+
+        // Moyennes : on exclut les valeurs absentes
+        $averageFeed = $rangeReports
+            ->whereNotNull('feed_quantity')
+            ->avg('feed_quantity');
+
+        $averageWater = $rangeReports
+            ->whereNotNull('water_quantity')
+            ->avg('water_quantity');
+
+        $averageFeedConsumed = $rangeReports
+            ->whereNotNull('feed_consumed')
+            ->avg('feed_consumed');
+
+        $averageWaterConsumed = $rangeReports
+            ->whereNotNull('water_consumed')
+            ->avg('water_consumed');
+
+        $feedDays = $rangeReports
+            ->whereNotNull('feed_quantity')
+            ->count();
+
+        $waterDays = $rangeReports
+            ->whereNotNull('water_quantity')
+            ->count();
+
+        $feedConsumedDays = $rangeReports
+            ->whereNotNull('feed_consumed')
+            ->count();
+
+        $waterConsumedDays = $rangeReports
+            ->whereNotNull('water_consumed')
+            ->count();
+
+        // -----------------------------------------
+        // PRÉPARATION DES GRAPHIQUES
+        // -----------------------------------------
+
+        $reportsByDate = $rangeReports->keyBy(
+            fn ($report) => $report->report_date->format('Y-m-d')
+        );
 
         $chartData = [
             'labels' => [],
-            'water' => [],
-            'feed' => [],
+
+            'feedServed' => [],
+            'feedConsumed' => [],
+
+            'waterServed' => [],
+            'waterConsumed' => [],
+
             'birds' => [],
         ];
 
-        for ($i = 0; $i < 14; $i++) {
+        for ($i = 0; $i < $period; $i++) {
 
             $date = $start->addDays($i);
             $key = $date->toDateString();
 
-            $report = $reports->get($key);
+            $report = $reportsByDate->get($key);
 
             $chartData['labels'][] = $date->format('d/m');
 
-            $chartData['water'][] =
-                $report && $report->water_quantity !== null
-                    ? (float) $report->water_quantity
-                    : null;
-
-            $chartData['feed'][] =
+            $chartData['feedServed'][] =
                 $report && $report->feed_quantity !== null
                     ? (float) $report->feed_quantity
                     : null;
 
+            $chartData['feedConsumed'][] =
+                $report && $report->feed_consumed !== null
+                    ? (float) $report->feed_consumed
+                    : null;
+
+            $chartData['waterServed'][] =
+                $report && $report->water_quantity !== null
+                    ? (float) $report->water_quantity
+                    : null;
+
+            $chartData['waterConsumed'][] =
+                $report && $report->water_consumed !== null
+                    ? (float) $report->water_consumed
+                    : null;
+
             $chartData['birds'][] =
-                $report ? (int) $report->birds_count : null;
+                $report
+                    ? (int) $report->birds_count
+                    : null;
         }
 
-        // Disponibilité des données par graphique
-        $hasWater = collect($chartData['water'])->contains(
-            fn ($value) => $value !== null
-        );
+        // -----------------------------------------
+        // DISPONIBILITÉ DES DONNÉES
+        // -----------------------------------------
 
-        $hasFeed = collect($chartData['feed'])->contains(
-            fn ($value) => $value !== null
-        );
+        $hasFeed = $feedDays > 0 || $feedConsumedDays > 0;
 
-        $hasBirds = collect($chartData['birds'])->contains(
-            fn ($value) => $value !== null
-        );
+        $hasWater = $waterDays > 0 || $waterConsumedDays > 0;
 
-        // ------------------------------------------------
-        // 5 DERNIERS RAPPORTS + INTERVENTIONS SANITAIRES
-        // ------------------------------------------------
+        $hasBirds = $rangeReports->isNotEmpty();
+
+        // -----------------------------------------
+        // DERNIÈRES ACTIVITÉS
+        // -----------------------------------------
 
         $recentReports = DailyReport::withCount([
             'treatments',
             'vaccinations',
         ])
+        ->where('report_date', '<=', $todayDate)
         ->orderByDesc('report_date')
         ->limit(5)
         ->get();
 
         return view('dashboard', compact(
+            'period',
             'today',
             'todayReport',
             'latestReport',
             'totalDeathsRecorded',
             'averageFeed',
             'averageWater',
+            'averageFeedConsumed',
+            'averageWaterConsumed',
             'feedDays',
             'waterDays',
+            'feedConsumedDays',
+            'waterConsumedDays',
             'chartData',
-            'hasWater',
             'hasFeed',
+            'hasWater',
             'hasBirds',
             'recentReports'
         ));

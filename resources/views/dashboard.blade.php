@@ -7,12 +7,15 @@
 
 {{-- EN-TÊTE --}}
 
-<div class="d-flex flex-column flex-sm-row
-            justify-content-between align-items-sm-center
+
+<div class="d-flex flex-column flex-md-row
+            justify-content-between align-items-md-center
             gap-3 mb-4">
 
     <div>
-        <h2 class="mb-1">Vue générale du poulailler</h2>
+        <h2 class="mb-1">
+            Vue générale du poulailler
+        </h2>
 
         <div class="text-secondary">
             {{ $today->locale('fr')->translatedFormat('l d F Y') }}
@@ -20,14 +23,53 @@
         </div>
     </div>
 
-    <div class="d-grid d-sm-block">
+    <div class="d-flex flex-column flex-sm-row gap-2">
+
+        {{-- FILTRE DE PÉRIODE --}}
+
+        <form method="GET"
+              action="{{ route('dashboard') }}"
+              class="d-flex gap-2">
+
+            <select
+                name="period"
+                class="form-select"
+                aria-label="Période du tableau de bord"
+                onchange="this.form.requestSubmit()"
+            >
+
+                <option value="7" @selected($period == 7)>
+                    7 derniers jours
+                </option>
+
+                <option value="14" @selected($period == 14)>
+                    14 derniers jours
+                </option>
+
+                <option value="30" @selected($period == 30)>
+                    30 derniers jours
+                </option>
+
+            </select>
+
+            <button type="submit"
+                    class="btn btn-outline-secondary">
+                OK
+            </button>
+
+        </form>
+
         <a href="{{ route('reports.create') }}"
            class="btn btn-primary">
+
             + Nouveau rapport
+
         </a>
+
     </div>
 
 </div>
+
 
 {{-- STATUT DU RAPPORT DU JOUR --}}
 
@@ -212,92 +254,110 @@
 
 {{-- GRAPHIQUES DES CONSOMMATIONS --}}
 
-<div class="row row-cards mb-4">
+    <div class="row row-cards mb-4">
 
-    {{-- EAU --}}
+        {{-- GRAPHIQUE EAU --}}
 
-    <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-6">
 
-        <div class="card h-100">
+            <div class="card h-100">
 
-            <div class="card-header">
-                <h3 class="card-title">
-                    💧 Évolution de l'eau servie
-                </h3>
-            </div>
+                <div class="card-header">
 
-            <div class="card-body">
+                    <h3 class="card-title">
+                        💧 Évolution de la consommation d'eau
+                    </h3>
 
-                <div class="text-secondary small mb-3">
-                    Quantité distribuée en litres —
-                    14 derniers jours
                 </div>
 
-                @if($hasWater)
+                <div class="card-body">
 
-                    <div style="position:relative;height:260px;width:100%">
-                        <canvas id="waterChart"
+                    <p class="text-secondary small mb-3">
+                        Eau servie et consommée sur les
+                        {{ $period }} derniers jours.
+                    </p>
+
+                    @if($hasWater)
+
+                        <div style="position: relative; height: 300px; width: 100%;">
+
+                            <canvas
+                                id="waterChart"
                                 role="img"
-                                aria-label="Courbe de l'eau distribuée"></canvas>
-                    </div>
+                                aria-label="Graphique de consommation d'eau"
+                            ></canvas>
 
-                @else
+                        </div>
 
-                    <div class="text-center text-secondary py-5">
-                        Aucune donnée d'eau sur cette période.
-                    </div>
+                    @else
 
-                @endif
+                        <div class="text-center text-secondary py-5">
+
+                            Aucune donnée d'eau disponible
+                            sur cette période.
+
+                        </div>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- GRAPHIQUE ALIMENT --}}
+
+        <div class="col-12 col-lg-6">
+
+            <div class="card h-100">
+
+                <div class="card-header">
+
+                    <h3 class="card-title">
+                        🌽 Évolution de la consommation d'aliment
+                    </h3>
+
+                </div>
+
+                <div class="card-body">
+
+                    <p class="text-secondary small mb-3">
+                        Aliment servi et consommé sur les
+                        {{ $period }} derniers jours.
+                    </p>
+
+                    @if($hasFeed)
+
+                        <div style="position: relative; height: 300px; width: 100%;">
+
+                            <canvas
+                                id="feedChart"
+                                role="img"
+                                aria-label="Graphique de consommation d'aliment"
+                            ></canvas>
+
+                        </div>
+
+                    @else
+
+                        <div class="text-center text-secondary py-5">
+
+                            Aucune donnée alimentaire disponible
+                            sur cette période.
+
+                        </div>
+
+                    @endif
+
+                </div>
 
             </div>
 
         </div>
 
     </div>
-
-    {{-- ALIMENT --}}
-
-    <div class="col-12 col-lg-6">
-
-        <div class="card h-100">
-
-            <div class="card-header">
-                <h3 class="card-title">
-                    🌽 Évolution de l'aliment servi
-                </h3>
-            </div>
-
-            <div class="card-body">
-
-                <div class="text-secondary small mb-3">
-                    Quantité distribuée en kilogrammes —
-                    14 derniers jours
-                </div>
-
-                @if($hasFeed)
-
-                    <div style="position:relative;height:260px;width:100%">
-                        <canvas id="feedChart"
-                                role="img"
-                                aria-label="Courbe de l'aliment distribué"></canvas>
-                    </div>
-
-                @else
-
-                    <div class="text-center text-secondary py-5">
-                        Aucune donnée d'aliment sur cette période.
-                    </div>
-
-                @endif
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
 
 {{-- EFFECTIF + RAPPORTS RÉCENTS --}}
 
@@ -319,7 +379,7 @@
 
                 <p class="text-secondary small">
                     Nombre de sujets renseigné dans les rapports,
-                    sur les 14 derniers jours.
+                    sur les {{ $period }} derniers jours.
                 </p>
 
                 @if($hasBirds)
@@ -428,23 +488,24 @@
 
 @endsection
 
+
 @push('scripts')
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 
 <script>
-    // Données transmises directement depuis Laravel
     const chartData = {{ \Illuminate\Support\Js::from($chartData) }};
 
     /**
-     * Générateur réutilisable de courbes.
+     * Génère une courbe comparative.
+     *
+     * Une série peut être entièrement absente :
+     * elle ne sera pas affichée dans la légende.
      */
-    function renderLineChart(
+    function renderComparisonChart(
         elementId,
-        values,
-        label,
+        series,
         unit,
-        color,
         beginAtZero = true,
         integerValues = false
     ) {
@@ -452,28 +513,38 @@
 
         if (!canvas) return;
 
+        const datasets = series
+            .filter(item =>
+                item.values.some(value => value !== null)
+            )
+            .map(item => ({
+                label: item.label,
+                data: item.values,
+
+                borderColor: item.color,
+                backgroundColor: item.color,
+
+                // Servie = pointillés / consommée = continu
+                borderDash: item.dashed ? [6, 4] : [],
+
+                borderWidth: 2,
+                tension: 0.25,
+
+                pointRadius: chartData.labels.length > 14 ? 2 : 3,
+                pointHoverRadius: 5,
+
+                spanGaps: false,
+                fill: false
+            }));
+
+        if (datasets.length === 0) return;
+
         new Chart(canvas, {
             type: 'line',
 
             data: {
                 labels: chartData.labels,
-
-                datasets: [{
-                    label: label,
-                    data: values,
-
-                    borderColor: color,
-                    backgroundColor: color,
-
-                    borderWidth: 2,
-                    tension: 0.3,
-
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-
-                    spanGaps: false,
-                    fill: false
-                }]
+                datasets: datasets
             },
 
             options: {
@@ -487,18 +558,38 @@
 
                 plugins: {
                     legend: {
-                        display: false
+                        display: datasets.length > 1,
+                        position: 'bottom',
+
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            padding: 20
+                        }
                     },
 
                     tooltip: {
                         callbacks: {
                             label: function(context) {
+
+                                if (context.parsed.y === null) {
+                                    return 'Non renseigné';
+                                }
+
                                 const value = new Intl.NumberFormat(
                                     'fr-FR',
-                                    { maximumFractionDigits: 2 }
+                                    {
+                                        maximumFractionDigits: 2
+                                    }
                                 ).format(context.parsed.y);
 
-                                return `${label} : ${value} ${unit}`;
+                                return (
+                                    context.dataset.label
+                                    + ' : '
+                                    + value
+                                    + ' '
+                                    + unit
+                                );
                             }
                         }
                     }
@@ -511,8 +602,9 @@
                         },
 
                         ticks: {
-                            maxTicksLimit: 7,
-                            maxRotation: 0
+                            maxTicksLimit: 8,
+                            maxRotation: 0,
+                            autoSkip: true
                         }
                     },
 
@@ -529,31 +621,67 @@
         });
     }
 
-    // Eau
-    renderLineChart(
+    // ----------------------------------------
+    // GRAPHIQUE EAU
+    // ----------------------------------------
+
+    renderComparisonChart(
         'waterChart',
-        chartData.water,
-        'Eau servie',
-        'L',
-        '#207cc7'
+        [
+            {
+                label: 'Eau servie',
+                values: chartData.waterServed,
+                color: '#7db7e8',
+                dashed: true
+            },
+            {
+                label: 'Eau consommée',
+                values: chartData.waterConsumed,
+                color: '#1769aa',
+                dashed: false
+            }
+        ],
+        'L'
     );
 
-    // Aliment
-    renderLineChart(
+    // ----------------------------------------
+    // GRAPHIQUE ALIMENT
+    // ----------------------------------------
+
+    renderComparisonChart(
         'feedChart',
-        chartData.feed,
-        'Aliment servi',
-        'kg',
-        '#2f9e44'
+        [
+            {
+                label: 'Aliment servi',
+                values: chartData.feedServed,
+                color: '#99d4a2',
+                dashed: true
+            },
+            {
+                label: 'Aliment consommé',
+                values: chartData.feedConsumed,
+                color: '#278342',
+                dashed: false
+            }
+        ],
+        'kg'
     );
 
-    // Cheptel
-    renderLineChart(
+    // ----------------------------------------
+    // GRAPHIQUE EFFECTIF
+    // ----------------------------------------
+
+    renderComparisonChart(
         'birdsChart',
-        chartData.birds,
-        'Effectif',
+        [
+            {
+                label: 'Effectif',
+                values: chartData.birds,
+                color: '#d28a19',
+                dashed: false
+            }
+        ],
         'sujets',
-        '#f59f00',
         false,
         true
     );

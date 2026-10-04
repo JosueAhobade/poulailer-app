@@ -38,6 +38,8 @@ class DailyReportController extends Controller
             'birds_weight' => ['nullable', 'numeric', 'min:0'],
             'temperature' => ['nullable', 'numeric'],
             'observations' => ['nullable', 'string'],
+            'feed_consumed' => ['nullable', 'numeric', 'min:0'],
+            'water_consumed' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         DailyReport::create($validated);
@@ -46,4 +48,25 @@ class DailyReportController extends Controller
             ->route('reports.index')
             ->with('success', 'Rapport enregistré avec succès.');
     }
+
+
+    public function editConsumption(DailyReport $report)
+    {
+        return view('reports.consumption', compact('report'));
+    }
+
+    public function updateConsumption(Request $request, DailyReport $report)
+    {
+        $validated = $request->validate([
+            'feed_consumed' => ['nullable', 'numeric', 'min:0'],
+            'water_consumed' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $report->update($validated);
+
+        return redirect()
+            ->route('reports.index')
+            ->with('success', 'Consommations mises à jour.');
+    }
+
 }

@@ -16,6 +16,8 @@ class DailyReport extends Model
         'birds_weight',
         'temperature',
         'observations',
+        'feed_consumed',
+        'water_consumed',
     ];
 
     protected $casts = [
@@ -24,6 +26,8 @@ class DailyReport extends Model
         'water_quantity' => 'decimal:2',
         'temperature' => 'decimal:2',
         'birds_weight' => 'decimal:2',
+        'feed_consumed' => 'decimal:2',
+        'water_consumed' => 'decimal:2',
     ];
 
     public function treatments()

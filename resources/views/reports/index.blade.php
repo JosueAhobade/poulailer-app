@@ -33,6 +33,8 @@
                         <th>Malades</th>
                         <th>Aliment</th>
                         <th>Eau</th>
+                        <th>Aliment consommé</th>
+                        <th>Eau consommée</th>
                         <th>Traitements</th>
                         <th>Vaccinations</th>
                         <th>Actions</th>
@@ -66,6 +68,19 @@
 
                         <td>
                             {{ $report->water_quantity ?? '-' }} L
+                        </td>
+                        <td>
+                            {{ $report->feed_consumed !== null
+                                ? number_format((float) $report->feed_consumed, 2, ',', ' ') . ' kg'
+                                : '—'
+                            }}
+                        </td>
+
+                        <td>
+                            {{ $report->water_consumed !== null
+                                ? number_format((float) $report->water_consumed, 2, ',', ' ') . ' L'
+                                : '—'
+                            }}
                         </td>
 
                         <td>
@@ -145,6 +160,12 @@
 
                                 + Vaccin
                             </a>
+                            <a href="{{ route('reports.consumption.edit', $report) }}"
+                            class="btn btn-sm btn-outline-success">
+
+                                Compléter la consommation
+
+                            </a>
 
                         </td>
                     </tr>
@@ -152,7 +173,7 @@
                 @empty
 
                     <tr>
-                        <td colspan="9" class="text-center text-secondary py-4">
+                        <td colspan="11" class="text-center text-secondary py-4">
                             Aucun rapport pour le moment.
                         </td>
                     </tr>
