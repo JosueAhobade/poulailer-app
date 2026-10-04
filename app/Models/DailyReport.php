@@ -30,4 +30,9 @@ class DailyReport extends Model
     {
         return $this->hasMany(Treatment::class);
     }
+
+    public function vaccinations()
+    {
+        return $this->hasMany(Vaccination::class);
+    }
 }

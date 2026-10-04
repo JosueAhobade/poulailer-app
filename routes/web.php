@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\TreatmentController;
+use App\Http\Controllers\VaccinationController;
 
 
 Route::get('/', function () {
@@ -28,3 +29,13 @@ Route::post(
     '/reports/{report}/treatments',
     [TreatmentController::class, 'store']
 )->name('treatments.store');
+
+Route::get(
+    '/reports/{report}/vaccinations/create',
+    [VaccinationController::class, 'create']
+)->name('vaccinations.create');
+
+Route::post(
+    '/reports/{report}/vaccinations',
+    [VaccinationController::class, 'store']
+)->name('vaccinations.store');

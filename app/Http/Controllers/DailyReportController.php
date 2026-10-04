@@ -10,10 +10,15 @@ class DailyReportController extends Controller
 {
     public function index()
     {
-        $reports = DailyReport::with('treatments')
-            ->orderBy('report_date', 'desc')
-            ->get();
+        $reports = DailyReport::with([
+            'treatments',
+            'vaccinations'
+        ])
+        ->orderBy('report_date', 'desc')
+        ->get();
         return view('reports.index', compact('reports'));
+
+        
     }
 
     public function create()

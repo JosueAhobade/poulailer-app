@@ -34,6 +34,7 @@
                         <th>Aliment</th>
                         <th>Eau</th>
                         <th>Traitements</th>
+                        <th>Vaccinations</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -100,10 +101,34 @@
                         </td>
 
                         <td>
+                            @forelse($report->vaccinations as $vaccination)
+
+                                <div class="mb-2">
+                                    <span class="badge bg-purple-lt">
+                                        {{ $vaccination->vaccine_name }}
+                                    </span>
+
+                                    <div class="text-secondary small mt-1">
+                                        {{ $vaccination->birds_count }} sujets
+                                    </div>
+
+                                    @if($vaccination->administration_method)
+                                        <div class="text-secondary small">
+                                            {{ $vaccination->administration_method }}
+                                        </div>
+                                    @endif
+                                </div>
+
+                            @empty
+                                <span class="text-secondary">Aucun</span>
+                            @endforelse
+                        </td>
+
+                        <td>
 
                             @if($report->treatments->count() > 0)
 
-                                <span class="badge bg-green-lt me-2">
+                                <span class="badge bg-green-lt me-2 flex ">
                                     💊 {{ $report->treatments->count() }}
                                 </span>
 
@@ -115,6 +140,11 @@
                             >
                                 + Traitement
                             </a>
+                            <a href="{{ route('vaccinations.create', $report) }}"
+                            class="btn btn-sm btn-outline-primary">
+
+                                + Vaccin
+                            </a>
 
                         </td>
                     </tr>
@@ -122,7 +152,7 @@
                 @empty
 
                     <tr>
-                        <td colspan="8" class="text-center text-secondary py-4">
+                        <td colspan="9" class="text-center text-secondary py-4">
                             Aucun rapport pour le moment.
                         </td>
                     </tr>
