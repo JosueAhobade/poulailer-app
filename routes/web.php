@@ -5,11 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\TreatmentController;
 use App\Http\Controllers\VaccinationController;
+use App\Http\Controllers\DashboardController;
 
 
-Route::get('/', function () {
-    return view('dashboard');
-})->name('dashboard');
+Route::get('/', [DashboardController::class, 'index'])
+    ->name('dashboard');
 
 Route::get('/reports', [DailyReportController::class, 'index'])
     ->name('reports.index');

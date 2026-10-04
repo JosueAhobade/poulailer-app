@@ -100,6 +100,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/js/tabler.min.js"></script>
-
+@stack('scripts')
 </body>
 </html>
