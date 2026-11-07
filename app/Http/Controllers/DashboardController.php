@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\DailyReport;
+use App\Models\EggCollection;
+use App\Models\EggSaleItem;
+use App\Models\Input;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
@@ -43,8 +46,8 @@ class DashboardController extends Controller
             '<=',
             $todayDate
         )
-        ->orderByDesc('report_date')
-        ->first();
+            ->orderByDesc('report_date')
+            ->first();
 
         $totalDeathsRecorded = DailyReport::where(
             'report_date',
@@ -60,8 +63,8 @@ class DashboardController extends Controller
             'report_date',
             [$startDate, $todayDate]
         )
-        ->orderBy('report_date')
-        ->get();
+            ->orderBy('report_date')
+            ->get();
 
         // Moyennes : on exclut les valeurs absentes
         $averageFeed = $rangeReports
@@ -169,10 +172,27 @@ class DashboardController extends Controller
             'treatments',
             'vaccinations',
         ])
-        ->where('report_date', '<=', $todayDate)
-        ->orderByDesc('report_date')
-        ->limit(5)
-        ->get();
+            ->where('report_date', '<=', $todayDate)
+            ->orderByDesc('report_date')
+            ->limit(5)
+            ->get();
+
+        // -----------------------------------------
+        // ŒUFS & INTRANTS
+        // -----------------------------------------
+
+        $todayEggCollection = EggCollection::whereDate('collection_date', $todayDate)->first();
+
+        $eggStock = (int) EggCollection::sum('collected_count')
+            - (int) EggCollection::sum('broken_count')
+            - (int) EggSaleItem::sum('quantity');
+
+        $lowStockInputs = Input::withStock()
+            ->whereNotNull('alert_threshold')
+            ->orderBy('name')
+            ->get()
+            ->filter
+            ->isLowStock();
 
         return view('dashboard', compact(
             'period',
@@ -192,7 +212,10 @@ class DashboardController extends Controller
             'hasFeed',
             'hasWater',
             'hasBirds',
-            'recentReports'
+            'recentReports',
+            'todayEggCollection',
+            'eggStock',
+            'lowStockInputs'
         ));
     }
 }

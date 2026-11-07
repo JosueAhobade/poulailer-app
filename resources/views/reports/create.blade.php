@@ -87,6 +87,25 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
+                    <label class="form-label">Provende utilisée</label>
+                    <select name="feed_input_id" class="form-select">
+                        <option value="">— Non suivie en stock —</option>
+                        @foreach($feedInputs as $feedInput)
+                            <option value="{{ $feedInput->id }}"
+                                @selected((string) old('feed_input_id', $lastFeedInputId) === (string) $feedInput->id)>
+                                {{ $feedInput->optionLabel() }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small class="text-secondary">
+                        La quantité servie sera automatiquement déduite du stock.
+                        @if($feedInputs->isEmpty())
+                            <a href="{{ route('inputs.create', ['category' => 'feed']) }}">Ajouter une provende</a>
+                        @endif
+                    </small>
+                </div>
+
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Eau servie</label>
                     <div class="input-group">
                         <input

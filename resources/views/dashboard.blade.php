@@ -252,6 +252,56 @@
 </div>
 
 
+{{-- ŒUFS & STOCK D'INTRANTS --}}
+
+<div class="row row-cards mb-4">
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a href="{{ route('eggs.collections.index') }}" class="card card-link h-100 text-reset">
+            <div class="card-body">
+                <div class="text-secondary mb-2">🥚 Œufs ramassés aujourd'hui</div>
+                <div class="h1 mb-1">
+                    {{ $todayEggCollection ? number_format($todayEggCollection->collected_count, 0, ',', ' ') : '—' }}
+                </div>
+                <div class="text-secondary small">
+                    {{ $todayEggCollection ? $todayEggCollection->broken_count.' cassés' : 'Ramassage non saisi' }}
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a href="{{ route('eggs.sales.create') }}" class="card card-link h-100 text-reset">
+            <div class="card-body">
+                <div class="text-secondary mb-2">📦 Œufs en stock</div>
+                <div class="h1 mb-1">{{ number_format($eggStock, 0, ',', ' ') }}</div>
+                <div class="text-secondary small">
+                    ≈ {{ intdiv(max($eggStock, 0), \App\Models\EggSale::EGGS_PER_TRAY) }} plateaux disponibles
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <a href="{{ route('inputs.index') }}" class="card card-link h-100 text-reset">
+            <div class="card-body">
+                <div class="text-secondary mb-2">⚠️ Intrants sous le seuil d'alerte</div>
+
+                @forelse($lowStockInputs as $input)
+                    <span class="badge bg-red-lt me-1 mb-1">
+                        {{ $input->category->icon() }} {{ $input->name }} :
+                        {{ number_format($input->currentStock(), 2, ',', ' ') }} {{ $input->unit }}
+                    </span>
+                @empty
+                    <div class="text-success">Tous les stocks sont au-dessus de leur seuil.</div>
+                @endforelse
+            </div>
+        </a>
+    </div>
+
+</div>
+
+
 {{-- GRAPHIQUES DES CONSOMMATIONS --}}
 
     <div class="row row-cards mb-4">
@@ -430,9 +480,9 @@
 
                         <div class="d-flex justify-content-between mb-2">
 
-                            <strong>
+                            <a href="{{ route('reports.show', $report) }}" class="fw-bold">
                                 {{ $report->report_date->format('d/m/Y') }}
-                            </strong>
+                            </a>
 
                             <span class="badge bg-green-lt">
                                 {{ $report->birds_count }} sujets

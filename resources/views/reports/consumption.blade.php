@@ -99,7 +99,7 @@
                             Mettre à jour
                         </button>
 
-                        <a href="{{ route('reports.index') }}"
+                        <a href="{{ route('reports.show', $report) }}"
                            class="btn btn-outline-secondary">
                             Annuler
                         </a>

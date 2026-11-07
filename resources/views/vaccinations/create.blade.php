@@ -30,13 +30,32 @@
 
             <div class="row">
 
-                <div class="col-12 mb-3">
-                    <label class="form-label">Nom du vaccin *</label>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Vaccin du stock</label>
+                    <select name="input_id" class="form-select">
+                        <option value="">— Hors stock (saisie libre) —</option>
+                        @foreach($vaccines as $vaccine)
+                            <option value="{{ $vaccine->id }}"
+                                @selected((string) old('input_id') === (string) $vaccine->id)>
+                                {{ $vaccine->optionLabel() }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small class="text-secondary">
+                        La quantité utilisée sera déduite du stock.
+                        @if($vaccines->isEmpty())
+                            <a href="{{ route('inputs.create', ['category' => 'vaccine']) }}">Ajouter un vaccin</a>
+                        @endif
+                    </small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nom du vaccin</label>
                     <input type="text"
                            name="vaccine_name"
                            class="form-control"
                            value="{{ old('vaccine_name') }}"
-                           required>
+                           placeholder="Laisser vide pour reprendre le nom du stock">
                 </div>
 
                 <div class="col-md-6 mb-3">
@@ -85,6 +104,21 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
+                    <label class="form-label">Quantité sortie du stock</label>
+
+                    <input type="number"
+                           name="quantity_used"
+                           class="form-control"
+                           step="0.01"
+                           min="0"
+                           inputmode="decimal"
+                           value="{{ old('quantity_used') }}"
+                           placeholder="Ex : 500 doses, 1 flacon">
+
+                    <small class="text-secondary">Dans l'unité du stock. Obligatoire si un vaccin du stock est choisi.</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
                     <label class="form-label">
                         Nombre de sujets vaccinés *
                     </label>
@@ -126,7 +160,7 @@
                     Enregistrer la vaccination
                 </button>
 
-                <a href="{{ route('reports.index') }}"
+                <a href="{{ route('reports.show', $report) }}"
                    class="btn btn-outline-secondary">
                     Annuler
                 </a>
