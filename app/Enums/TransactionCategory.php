@@ -28,7 +28,7 @@ enum TransactionCategory: string
     public function label(): string
     {
         return match ($this) {
-            self::Birds => 'Achat de sujets (poussins, poulettes)',
+            self::Birds => 'Achat de sujets',
             self::Labor => 'Main d\'œuvre / salaires',
             self::Utilities => 'Eau & électricité',
             self::Equipment => 'Matériel & équipement',

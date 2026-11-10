@@ -11,23 +11,50 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    /**
+     * Durées proposées (en jours) en plus de « Depuis le début ».
+     *
+     * @var array<int, string>
+     */
+    public const PERIOD_OPTIONS = [
+        7 => '7 derniers jours',
+        14 => '14 derniers jours',
+        30 => '30 derniers jours',
+        90 => '3 derniers mois',
+        180 => '6 derniers mois',
+        365 => '12 derniers mois',
+    ];
+
     public function index(Request $request)
     {
-        // Filtre sécurisé : uniquement 7, 14 ou 30 jours
-        $period = filter_var(
-            $request->query('period'),
-            FILTER_VALIDATE_INT
-        );
-
-        $period = in_array($period, [7, 14, 30], true)
-            ? $period
-            : 14;
-
         // Date locale du poulailler
         $today = CarbonImmutable::now('Africa/Porto-Novo')
             ->startOfDay();
 
         $todayDate = $today->toDateString();
+
+        // Filtre sécurisé : une durée prédéfinie, ou « depuis le début » (par défaut)
+        $requestedDays = filter_var(
+            $request->query('period'),
+            FILTER_VALIDATE_INT
+        );
+
+        if (array_key_exists((int) $requestedDays, self::PERIOD_OPTIONS)) {
+            $periodKey = (string) $requestedDays;
+            $period = (int) $requestedDays;
+            $periodLabel = "sur les {$period} derniers jours";
+        } else {
+            $periodKey = 'all';
+
+            $firstReportDate = DailyReport::where('report_date', '<=', $todayDate)
+                ->min('report_date');
+
+            $period = $firstReportDate
+                ? (int) round(CarbonImmutable::parse($firstReportDate, 'Africa/Porto-Novo')->startOfDay()->diffInDays($today)) + 1
+                : 14;
+
+            $periodLabel = "depuis le début ({$period} jours)";
+        }
 
         $start = $today->subDays($period - 1);
         $startDate = $start->toDateString();
@@ -196,6 +223,8 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'period',
+            'periodKey',
+            'periodLabel',
             'today',
             'todayReport',
             'latestReport',

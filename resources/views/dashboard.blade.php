@@ -38,17 +38,15 @@
                 onchange="this.form.requestSubmit()"
             >
 
-                <option value="7" @selected($period == 7)>
-                    7 derniers jours
+                <option value="all" @selected($periodKey === 'all')>
+                    Depuis le début
                 </option>
 
-                <option value="14" @selected($period == 14)>
-                    14 derniers jours
-                </option>
-
-                <option value="30" @selected($period == 30)>
-                    30 derniers jours
-                </option>
+                @foreach(\App\Http\Controllers\DashboardController::PERIOD_OPTIONS as $days => $label)
+                    <option value="{{ $days }}" @selected($periodKey === (string) $days)>
+                        {{ $label }}
+                    </option>
+                @endforeach
 
             </select>
 
@@ -190,7 +188,7 @@
                 </div>
 
                 <div class="text-secondary small">
-                    Moyenne sur 7 jours :
+                    Moyenne {{ $periodLabel }} :
 
                     @if($averageFeed !== null)
                         <strong>
@@ -232,7 +230,7 @@
                 </div>
 
                 <div class="text-secondary small">
-                    Moyenne sur 7 jours :
+                    Moyenne {{ $periodLabel }} :
 
                     @if($averageWater !== null)
                         <strong>
@@ -323,8 +321,8 @@
                 <div class="card-body">
 
                     <p class="text-secondary small mb-3">
-                        Eau servie et consommée sur les
-                        {{ $period }} derniers jours.
+                        Eau servie et consommée
+                        {{ $periodLabel }}.
                     </p>
 
                     @if($hasWater)
@@ -374,8 +372,8 @@
                 <div class="card-body">
 
                     <p class="text-secondary small mb-3">
-                        Aliment servi et consommé sur les
-                        {{ $period }} derniers jours.
+                        Aliment servi et consommé
+                        {{ $periodLabel }}.
                     </p>
 
                     @if($hasFeed)
@@ -429,7 +427,7 @@
 
                 <p class="text-secondary small">
                     Nombre de sujets renseigné dans les rapports,
-                    sur les {{ $period }} derniers jours.
+                    {{ $periodLabel }}.
                 </p>
 
                 @if($hasBirds)

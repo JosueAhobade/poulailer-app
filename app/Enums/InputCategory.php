@@ -5,14 +5,12 @@ namespace App\Enums;
 enum InputCategory: string
 {
     case Feed = 'feed';
-    case Vaccine = 'vaccine';
     case Medicine = 'medicine';
 
     public function label(): string
     {
         return match ($this) {
             self::Feed => 'Provende',
-            self::Vaccine => 'Vaccin',
             self::Medicine => 'Médicament',
         };
     }
@@ -21,7 +19,6 @@ enum InputCategory: string
     {
         return match ($this) {
             self::Feed => '🌽',
-            self::Vaccine => '💉',
             self::Medicine => '💊',
         };
     }
@@ -35,7 +32,6 @@ enum InputCategory: string
     {
         return match ($this) {
             self::Feed => ['kg'],
-            self::Vaccine => ['doses', 'flacon', 'ml'],
             self::Medicine => ['g', 'kg', 'ml', 'L', 'sachet', 'flacon'],
         };
     }

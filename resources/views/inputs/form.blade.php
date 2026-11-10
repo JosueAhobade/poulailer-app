@@ -60,7 +60,7 @@
                                    required>
                             <datalist id="unit-suggestions"></datalist>
                             <small class="text-secondary">
-                                Pour la provende, gardez « kg » : c'est l'unité de l'aliment servi dans les rapports.
+                                Pour la provende, gardez « kg », pour les médicaments, utilisez « g » ou « ml » selon le cas.
                             </small>
                         </div>
 

@@ -16,11 +16,11 @@ class AccountingController extends Controller
      * @var array<string, string>
      */
     public const PERIODS = [
+        'all' => 'Depuis le début',
         'month' => 'Ce mois-ci',
         'last_month' => 'Mois dernier',
         'year' => 'Cette année',
         'last_year' => 'Année dernière',
-        'all' => 'Depuis le début',
         'custom' => 'Personnalisée',
     ];
 
@@ -73,9 +73,9 @@ class AccountingController extends Controller
             'last_month' => [$today->subMonthNoOverflow()->startOfMonth(), $today->subMonthNoOverflow()->endOfMonth()],
             'year' => [$today->startOfYear(), $today->endOfYear()],
             'last_year' => [$today->subYear()->startOfYear(), $today->subYear()->endOfYear()],
-            'all' => [null, null],
             'custom' => [CarbonImmutable::parse($filters['from']), CarbonImmutable::parse($filters['to'])],
-            default => [$today->startOfMonth(), $today->endOfMonth()],
+            'month' => [$today->startOfMonth(), $today->endOfMonth()],
+            default => [null, null],
         };
     }
 
